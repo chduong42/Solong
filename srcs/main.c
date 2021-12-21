@@ -6,73 +6,79 @@
 /*   By: chduong <chduong@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/06 17:56:41 by chduong           #+#    #+#             */
-/*   Updated: 2021/12/10 12:25:04 by chduong          ###   ########.fr       */
+/*   Updated: 2021/12/21 18:00:04 by chduong          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
-#include <stdlib.h>
-#include <mlx.h>
-#include <X11/keysym.h>
-#include <X11/X.h>
 
-#define WINDOW_WIDTH 600
-#define WINDOW_HEIGHT 300
-#define MLX_ERROR 1
-
-typedef struct s_data
+void	init_window(t_data *data, t_dim map)
 {
-	void	*mlx_ptr;
-	void	*win_ptr;
-}	t_data;
+	t_dim	res;
 
-int	handle_no_event(void *data)
-{
-	/* This function needs to exist, but it is useless for the moment */
-	if (!data)
-		return (-1);
-	return (0);
+	res.x = map.x * PIX;
+	res.y = map.y * PIX;
+	data->mlx = mlx_init();
+	check_ptr(data->mlx);
+	data->win = mlx_new_window(data->mlx, res.x, res.y, TITLE);
+	check_ptr(data->win);
 }
 
-int	handle_keypress(int keysym, t_data *data)
+void	load_img(t_data *data)
 {
-	if (keysym == XK_Escape)
-		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-
-	printf("Keypress: %d\n", keysym);
-	return (0);
+	int		w;
+	int		h;
+	
+	w = data->width;
+	h = data->height;
+	data->exit = mlx_xpm_file_to_image(data->mlx, EXIT, &w, &h);
+	check_ptr(data->exit);
+	data->wall = mlx_xpm_file_to_image(data->mlx, WALL, &w, &h);
+	check_ptr(data->wall);
+	data->player = mlx_xpm_file_to_image(data->mlx, PLAYER, &w, &h);
+	check_ptr(data->player);
+	data->ground = mlx_xpm_file_to_image(data->mlx, GROUND, &w, &h);
+	check_ptr(data->ground);
+	data->collect = mlx_xpm_file_to_image(data->mlx, COLLECT, &w, &h);
+	check_ptr(data->collect);
 }
 
-int	handle_keyrelease(int keysym, void *data)
+void    set_loop(t_data *data)
 {
-	printf("Keyrelease: %d\n", keysym);
-	if (!data)
-		return (-1);
-	return (0);
+	mlx_loop_hook(data->mlx, &handle_display, &data);
+	mlx_hook(data->win, KeyPress, KeyPressMask, &handle_keypress, &data);
+	mlx_hook(data->win, ClientMessage, LeaveWindowMask, &handle_crossbtn, &data);
+	mlx_loop(data->mlx);
 }
 
-int	main(void)
+void	clear_data(t_data *data)
+{
+	// mlx_destroy_image(data->mlx, data->exit);
+	// mlx_destroy_image(data->mlx, data->wall);
+	// mlx_destroy_image(data->mlx, data->player);
+	// mlx_destroy_image(data->mlx, data->ground);
+	// mlx_destroy_image(data->mlx, data->collect);
+	mlx_destroy_window(data->mlx, data->win);
+	mlx_destroy_display(data->mlx);
+	free(data->mlx);
+	free_map(data->map.tab, data->map.dim.y);
+}
+
+int	main(int ac, char **av)
 {
 	t_data	data;
 
-	data.mlx_ptr = mlx_init();
-	if (data.mlx_ptr == NULL)
-		return (MLX_ERROR);
-	data.win_ptr = mlx_new_window(data.mlx_ptr, WINDOW_WIDTH, WINDOW_HEIGHT, "My first window!");
-	if (data.win_ptr == NULL)
+	if(ac != 2)
+		fprintf(stderr, "\e[1;37musage :\e[0m %s <mapfile.ber>\n", av[0]);
+	else
 	{
-		free(data.win_ptr);
-		return (MLX_ERROR);
+		data.map = get_map(av[1]);
+		init_window(&data, data.map.dim);
+		// load_img(&data);
+		set_loop(&data);
+		mlx_destroy_display(data.mlx);
+		free(data.mlx);
+		free_map(data.map.tab, data.map.dim.y);
 	}
-
-	/* Setup hooks */ 
-	mlx_loop_hook(data.mlx_ptr, &handle_no_event, &data);
-	mlx_hook(data.win_ptr, KeyPress, KeyPressMask, &handle_keypress, &data); /* ADDED */
-	mlx_hook(data.win_ptr, KeyRelease, KeyReleaseMask, &handle_keyrelease, &data); /* CHANGED */
-
-	mlx_loop(data.mlx_ptr);
-
-	/* we will exit the loop if there's no window left, and execute this code */
-	mlx_destroy_display(data.mlx_ptr);
-	free(data.mlx_ptr);
+	return (0);
 }
