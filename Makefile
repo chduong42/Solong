@@ -6,7 +6,7 @@
 #    By: chduong <chduong@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/12/05 18:48:08 by kennyduong        #+#    #+#              #
-#    Updated: 2021/12/21 17:49:24 by chduong          ###   ########.fr        #
+#    Updated: 2021/12/24 13:46:29 by chduong          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,9 @@ MKDIR		=	mkdir -p
 AR			=	ar rcs
 RM			= 	rm -rf
 
-# ANSI COLORS
+#########################################
+#				COLORS					#
+#########################################
 GREY       =   $'\033[0;30m
 RED        =   $'\033[0;31m
 GREEN      =   $'\033[0;92m
@@ -40,7 +42,7 @@ BOLD       =   $'\e[1m
 #			FLAGS COMPILATION			#
 #########################################
 CFLAGS		=	-Wall -Wextra -Werror
-DEBUG		=	-fsanitize=address -g
+DEBUG		=	-fsanitize=address -g3
 
 INC			= 	-I includes $(INC_MLX) $(INC_LFT)
 INC_LFT		=	-I libft/inc
@@ -65,8 +67,9 @@ LIBFT		=	$(LFT_DIR)libft.a
 MLX			= 	$(MLX_DIR)libmlx.a
 
 SL_SRC		=	main.c				get_map.c		checker_map.c\
-				error_utils.c		handlers.c		parse_display.c
-				
+				error_utils.c		handlers.c		parse_display.c\
+				data_init.c			clear_data.c	load_img.c\
+				player_move.c		display.c
 
 #########################################
 #            OBJECT FILES    	        #
@@ -79,7 +82,7 @@ SL_OBJ		:=	$(addprefix $(OBJ_DIR), $(SL_OBJ))
 #########################################
 $(SL): $(MLX) $(LIBFT) $(OBJ_DIR) $(SL_OBJ)
 	@echo "> $(CYAN)Generate objects$(END) : \t\t[$(GREEN)OK$(END)]"
-	@$(CC) $(DEBUG) -o $@ $(SL_OBJ) $(LIBFT) $(MLX) $(LINK)
+	@$(CC) -o $@ $(SL_OBJ) $(LIBFT) $(MLX) $(LINK)
 	@echo "> $(WHITE)$(BOLD)So_Long Compilation$(END) : \t[$(YELLOW)COMPLETE$(END)]"
 
 $(LIBFT):

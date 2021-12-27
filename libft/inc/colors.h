@@ -6,7 +6,7 @@
 /*   By: chduong <chduong@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 15:46:00 by chduong           #+#    #+#             */
-/*   Updated: 2021/12/16 15:37:05 by chduong          ###   ########.fr       */
+/*   Updated: 2021/12/23 17:46:17 by chduong          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <string.h>
 
 //Reset
+# define REFRESH "\033[H\033[J"
 # define RESET "\e[0m"
 
 //Regular text
